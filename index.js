@@ -3,6 +3,24 @@ var path = require('path');
 var chokidar = require('chokidar');
 var parallel = require('run-parallel');
 
+/**
+  # rebuilder
+
+  This is a simple and opionated tool that helps you run a devserver for
+  building web applications and sites that use
+  [browserify](https://github.com/substack/node-browserify) and
+  [postcss](https://github.com/postcss/postcss).
+
+  ## Why?
+
+  Because I don't like writing build tasks for my web apps.
+
+  ## Example Usage
+
+  To be completed.
+  
+**/
+
 module.exports = function(server, opts) {
   var cwd = (opts || {}).cwd || path.dirname(module.parent.filename);
   var srcPath = (opts || {}).src || path.resolve(cwd, 'src');
