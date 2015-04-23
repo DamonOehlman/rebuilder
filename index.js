@@ -2,6 +2,8 @@ var fs = require('fs');
 var path = require('path');
 var chokidar = require('chokidar');
 var parallel = require('run-parallel');
+var debounce = require('lodash/function/debounce');
+var pluck = require('whisk/pluck');
 
 /**
   # rebuilder
@@ -18,7 +20,7 @@ var parallel = require('run-parallel');
   ## Example Usage
 
   To be completed.
-  
+
 **/
 
 module.exports = function(server, opts) {
@@ -35,23 +37,43 @@ module.exports = function(server, opts) {
   var watcher = chokidar.watch(srcPath);
   var buildTasks = [];
 
+  var rebuild = debounce(buildFiles, 100);
+
   function createBuildTasks(filename) {
     return actions.map(function(action) {
       var match = action[0].exec(filename);
-      if (match) {
-        return action[1].bind(null, filename, 'foo', opts);
-      }
+      var buildTask = match && action[1].bind(
+        null,
+        path.join(srcPath, filename),
+        path.join(staticPath, filename),
+        opts
+      );
+
+      return buildTask && [ buildTask, filename ];
     }).filter(Boolean);
   }
 
-  function rebuild() {
-    parallel(buildTasks, function(err, results) {
+  function buildFiles() {
+    var changed = false;
+    var _rebuild = rebuild;
+
+    // replace the rebuild function with a flag toggler
+    rebuild = function() { changed = true };
+
+    // run the build tasks
+    parallel(buildTasks.map(pluck(0)), function(err, results) {
       if (err) {
         watcher.close();
         return console.error(err);
       }
 
       console.log('run rebuild');
+
+      // replace the old rebuild
+      rebuild = _rebuild;
+      if (changed) {
+        process.nextTick(rebuild);
+      }
     });
   }
 
@@ -65,6 +87,29 @@ module.exports = function(server, opts) {
   });
 
   watcher.on('all', function(evt, filename) {
-    console.log('file changed: ', evt, path.relative(srcPath, filename));
+    var rel = path.relative(srcPath, filename);
+
+    // if we have detected a new toplevel file, then add it to the build tasks
+    if (path.dirname(rel) === '.') {
+      if (evt === 'add') {
+        buildTasks = buildTasks.concat(createBuildTasks(rel));
+        rebuild();
+      }
+      else if (evt === 'unlink') {
+        // remove the task that applies to the removed file
+        buildTasks = buildTasks.filter(function(task) {
+          return task[1] !== rel;
+        });
+
+        // remove the dist file
+        fs.unlink(path.join(staticPath, rel), function(err) {
+          // TODO: warn that a file removal failed
+        });
+        
+        rebuild();
+      }
+    }
+
+    console.log('file changed: ', evt, rel);
   });
 };
