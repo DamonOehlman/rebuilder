@@ -99,7 +99,7 @@ module.exports = function(opts) {
       return out.error(err);
     }
 
-    out('development server listening @ !{underline}http://localhost:{0}/', server.address().port);
+    out('!{0x2699} http://localhost:{0}/', server.address().port);
   }
 
   watcher.on('all', function(evt, filename) {
