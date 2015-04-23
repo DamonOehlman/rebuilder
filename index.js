@@ -4,6 +4,7 @@ var chokidar = require('chokidar');
 var parallel = require('run-parallel');
 var debounce = require('lodash/function/debounce');
 var pluck = require('whisk/pluck');
+var out = require('out');
 
 /**
   # rebuilder
@@ -31,13 +32,13 @@ module.exports = function(server, opts) {
   // initialise the actions
   var actions = ((opts || {}).actions || []).concat([
     [ /\.js$/i, require('./lib/browserify') ],
-    [ /\.css$/i, require('./lib/cssnext') ]
+    [ /\.css$/i, require('./lib/postcss') ]
   ]);
 
   var watcher = chokidar.watch(srcPath);
   var buildTasks = [];
 
-  var rebuild = debounce(buildFiles, 100);
+  var rebuild = debounce(buildFiles, 1000);
 
   function createBuildTasks(filename) {
     return actions.map(function(action) {
@@ -56,6 +57,7 @@ module.exports = function(server, opts) {
   function buildFiles() {
     var changed = false;
     var _rebuild = rebuild;
+    var start = Date.now();
 
     // replace the rebuild function with a flag toggler
     rebuild = function() { changed = true };
@@ -64,10 +66,14 @@ module.exports = function(server, opts) {
     parallel(buildTasks.map(pluck(0)), function(err, results) {
       if (err) {
         watcher.close();
-        return console.error(err);
+        return out.error(err);
       }
 
-      console.log('run rebuild');
+      out(
+        '!{reload,green} {0} !{grey}{1}ms',
+        buildTasks.map(pluck(1)).join(' '),
+        Date.now() - start
+      );
 
       // replace the old rebuild
       rebuild = _rebuild;
@@ -76,15 +82,6 @@ module.exports = function(server, opts) {
       }
     });
   }
-
-  fs.readdir(srcPath, function(err, files) {
-    buildTasks = (files || []).reduce(function(items, filename) {
-      return items.concat(createBuildTasks(filename));
-    }, []);
-
-    // build the buildable files, and then start the server
-    rebuild();
-  });
 
   watcher.on('all', function(evt, filename) {
     var rel = path.relative(srcPath, filename);
@@ -105,11 +102,14 @@ module.exports = function(server, opts) {
         fs.unlink(path.join(staticPath, rel), function(err) {
           // TODO: warn that a file removal failed
         });
-        
+
         rebuild();
       }
     }
 
-    console.log('file changed: ', evt, rel);
+    // if we have a change event, rebuild all (we don't know the impact of the change)
+    if (evt === 'change') {
+      rebuild();
+    }
   });
 };
