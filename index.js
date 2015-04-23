@@ -22,10 +22,11 @@ var out = require('out');
 
 **/
 
-module.exports = function(server, opts) {
+module.exports = function(opts) {
   var cwd = (opts || {}).cwd || path.dirname(module.parent.filename);
   var srcPath = (opts || {}).src || path.resolve(cwd, 'src');
   var staticPath = (opts || {}).static || path.resolve(cwd, 'static');
+  var createServer = (opts || {}).server;
 
   // initialise the actions
   var actions = ((opts || {}).actions || []).concat([
