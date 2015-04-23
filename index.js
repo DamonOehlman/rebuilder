@@ -27,6 +27,7 @@ module.exports = function(opts) {
   var srcPath = (opts || {}).src || path.resolve(cwd, 'src');
   var staticPath = (opts || {}).static || path.resolve(cwd, 'static');
   var createServer = (opts || {}).server;
+  var server;
 
   // initialise the actions
   var actions = ((opts || {}).actions || []).concat([
@@ -74,7 +75,16 @@ module.exports = function(opts) {
         Date.now() - start
       );
 
-      // TODO: restart the server
+      // if we have a server instance, then close it
+      if (server) {
+        server.close();
+      }
+
+      // if we have a create server function then create the server instance
+      if (typeof createServer == 'function') {
+        server = createServer(opts);
+        server.listen((opts || {}).port || 3000, handleServerStart);
+      }
 
       // replace the old rebuild
       rebuild = _rebuild;
@@ -82,6 +92,14 @@ module.exports = function(opts) {
         process.nextTick(rebuild);
       }
     });
+  }
+
+  function handleServerStart(err) {
+    if (err) {
+      return out.error(err);
+    }
+
+    out('development server listening @ !{underline}http://localhost:{0}/', server.address().port);
   }
 
   watcher.on('all', function(evt, filename) {
