@@ -1,6 +1,6 @@
 {
   "name": "rebuilder",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "An opinionated tool for building web applications",
   "main": "index.js",
   "scripts": {
