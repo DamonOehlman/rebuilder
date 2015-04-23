@@ -1,19 +1,3 @@
-# rebuilder
-
-This is a simple and opionated tool that helps you run a devserver for
-building web applications and sites that use
-[browserify](https://github.com/substack/node-browserify) and
-[postcss](https://github.com/postcss/postcss).
-
-
-[![NPM](https://nodei.co/npm/rebuilder.png)](https://nodei.co/npm/rebuilder/)
-
-[![bitHound Score](https://www.bithound.io/github/DamonOehlman/rebuilder/badges/score.svg)](https://www.bithound.io/github/DamonOehlman/rebuilder) 
-
-## Why?
-
-Because I don't like writing build tasks for my web apps.
-
 ## Usage
 
 Another convention over configuration tool (though you can configure it). Recommended project setup:
@@ -69,22 +53,3 @@ require('rebuilder')({ server: require('./index') });
 ```
 
 This allows rebuilder to start the server once it believes that static resources are ready to be served, and also allows it to restart the server when those resources change. If this is the desired, behaviour then you can simply invoke `rebuilder` and not provide a `server` option.  If this is the case, you may choose to use the `NODE_ENV` environment variable and simply include rebuilder in the `server.js` file.
-
-
-## License(s)
-
-### ISC
-
-Copyright (c) 2015, Damon Oehlman <damon.oehlman@gmail.com>
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.

@@ -18,9 +18,7 @@ var out = require('out');
 
   Because I don't like writing build tasks for my web apps.
 
-  ## Example Usage
-
-  To be completed.
+  <<< docs/usage.md
 
 **/
 
