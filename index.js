@@ -70,10 +70,12 @@ module.exports = function(server, opts) {
       }
 
       out(
-        '!{reload,green} {0} !{grey}{1}ms',
+        '!{0x21BA,green} {0} !{grey}{1}ms',
         buildTasks.map(pluck(1)).join(' '),
         Date.now() - start
       );
+
+      // TODO: restart the server
 
       // replace the old rebuild
       rebuild = _rebuild;
