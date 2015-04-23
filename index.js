@@ -60,7 +60,7 @@ module.exports = function(opts) {
     var start = Date.now();
 
     // replace the rebuild function with a flag toggler
-    rebuild = function() { changed = true };
+    rebuild = function() { changed = true; };
 
     // run the build tasks
     parallel(buildTasks.map(pluck(0)), function(err, results) {
@@ -119,7 +119,9 @@ module.exports = function(opts) {
 
         // remove the dist file
         fs.unlink(path.join(staticPath, rel), function(err) {
-          // TODO: warn that a file removal failed
+          if (err) {
+            out('!{yellow}WARN:!{} removing output file {0} failed', rel);
+          }
         });
 
         rebuild();
