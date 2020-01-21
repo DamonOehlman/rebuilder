@@ -23,7 +23,7 @@
   "homepage": "https://github.com/DamonOehlman/rebuilder#readme",
   "dependencies": {
     "browserify": "^9.0.8",
-    "chokidar": "^1.0.1",
+    "chokidar": "^2.0.0",
     "cssnext": "^1.3.0",
     "lodash": "^3.7.0",
     "out": "^1.0.0",
